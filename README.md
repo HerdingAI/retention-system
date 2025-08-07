@@ -243,7 +243,7 @@ def analyze_semester_cohort():
 
 ## Privacy Considerations
 
-- **FIPPA Compliance**: System designed for FERPA privacy regulations
+- **Compliance**: System designed for FERPA privacy regulations
 - **Minimal Data**: Works with academic data only, no personal identifiers required
 - **No Persistence**: Student data not stored beyond session scope
 - **Anonymization Ready**: Student IDs can be hashed or tokenized
