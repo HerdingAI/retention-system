@@ -1,4 +1,4 @@
-# Student Retention Prediction System
+# Student Retention System
 
 A machine learning proof-of-concept for predicting student dropout risk in educational institutions. This system demonstrates how academic and behavioral data can identify at-risk students for early intervention.
 
