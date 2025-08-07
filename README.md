@@ -328,5 +328,3 @@ This system is provided as an open foundation for institutional adaptation. Key 
 **License**: MIT License - suitable for institutional use and modification.
 
 ---
-
-**Built for Ontario educational institutions seeking to implement predictive analytics for student success.**
