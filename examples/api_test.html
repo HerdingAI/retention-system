@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Retention API Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header { 
+            text-align: center; 
+            color: #333; 
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .button { 
+            background: #007acc; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover { 
+            background: #005999; 
+        }
+        .result { 
+            margin-top: 10px; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { 
+            background: #d4edda; 
+            border: 1px solid #c3e6cb; 
+            color: #155724;
+        }
+        .error { 
+            background: #f8d7da; 
+            border: 1px solid #f5c6cb; 
+            color: #721c24;
+        }
+        .student-form { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin: 10px 0;
+        }
+        .student-form input { 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 3px;
+        }
+        .student-form label { 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Student Retention Prediction API Test</h1>
+            <p>Testing the API running on <strong>http://localhost:5001</strong></p>
+        </div>
+
+        <!-- Health Check Test -->
+        <div class="test-section">
+            <h3>🏥 Health Check Test</h3>
+            <p>Check if the API server is running and the ML model is loaded.</p>
+            <button class="button" onclick="testHealth()">Test Health Endpoint</button>
+            <div id="healthResult" class="result"></div>
+        </div>
+
+        <!-- Single Student Prediction Test -->
+        <div class="test-section">
+            <h3>🧑‍🎓 Single Student Prediction Test</h3>
+            <p>Test prediction for individual students with different risk profiles.</p>
+            
+            <div>
+                <button class="button" onclick="testHighRisk()">Test High Risk Student</button>
+                <button class="button" onclick="testLowRisk()">Test Low Risk Student</button>
+                <button class="button" onclick="testAverageStudent()">Test Average Student</button>
+            </div>
+            <div id="predictionResult" class="result"></div>
+        </div>
+
+        <!-- Custom Student Test -->
+        <div class="test-section">
+            <h3>🔧 Custom Student Test</h3>
+            <p>Enter custom student data to test the prediction.</p>
+            
+            <div class="student-form">
+                <label>Student ID:</label>
+                <input type="text" id="studentId" value="custom_001" />
+                
+                <label>Current GPA (0.0-4.0):</label>
+                <input type="number" id="currentGpa" value="3.0" min="0" max="4" step="0.1" />
+                
+                <label>Attendance Rate (0.0-1.0):</label>
+                <input type="number" id="attendanceRate" value="0.85" min="0" max="1" step="0.01" />
+                
+                <label>Total Credits:</label>
+                <input type="number" id="totalCredits" value="15" min="0" max="30" />
+                
+                <label>GPA Trend (-1.0 to 1.0):</label>
+                <input type="number" id="gpaTrend" value="0.0" min="-1" max="1" step="0.1" />
+                
+                <label>Study Hours/Week:</label>
+                <input type="number" id="studyHours" value="15" min="0" max="50" />
+            </div>
+            
+            <button class="button" onclick="testCustomStudent()">Test Custom Student</button>
+            <div id="customResult" class="result"></div>
+        </div>
+
+        <!-- Batch Test -->
+        <div class="test-section">
+            <h3>📊 Batch Prediction Test</h3>
+            <p>Test batch processing with multiple students.</p>
+            <button class="button" onclick="testBatch()">Test Batch Prediction</button>
+            <div id="batchResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001';
+
+        function displayResult(elementId, data, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                displayResult('healthResult', data, response.ok);
+            } catch (error) {
+                displayResult('healthResult', {error: error.message}, false);
+            }
+        }
+
+        async function testHighRisk() {
+            const studentData = {
+                student_id: "high_risk_test",
+                current_gpa: 2.0,
+                attendance_rate: 0.60,
+                total_credits: 9,
+                gpa_trend: -0.3,
+                study_hours_per_week: 5,
+                family_income: 25000,
+                first_generation: 1,
+                distance_from_home: 200,
+                part_time_job: 1
+            };
+            await testPrediction(studentData, 'predictionResult');
+        }
+
+        async function testLowRisk() {
+            const studentData = {
+                student_id: "low_risk_test",
+                current_gpa: 3.8,
+                attendance_rate: 0.95,
+                total_credits: 18,
+                gpa_trend: 0.2,
+                study_hours_per_week: 25,
+                family_income: 75000,
+                first_generation: 0,
+                distance_from_home: 30
+            };
+            await testPrediction(studentData, 'predictionResult');
+        }
+
+        async function testAverageStudent() {
+            const studentData = {
+                student_id: "average_test",
+                current_gpa: 3.0,
+                attendance_rate: 0.82,
+                total_credits: 15,
+                gpa_trend: 0.0,
+                study_hours_per_week: 15,
+                family_income: 50000
+            };
+            await testPrediction(studentData, 'predictionResult');
+        }
+
+        async function testCustomStudent() {
+            const studentData = {
+                student_id: document.getElementById('studentId').value,
+                current_gpa: parseFloat(document.getElementById('currentGpa').value),
+                attendance_rate: parseFloat(document.getElementById('attendanceRate').value),
+                total_credits: parseInt(document.getElementById('totalCredits').value),
+                gpa_trend: parseFloat(document.getElementById('gpaTrend').value),
+                study_hours_per_week: parseInt(document.getElementById('studyHours').value)
+            };
+            await testPrediction(studentData, 'customResult');
+        }
+
+        async function testPrediction(studentData, resultElementId) {
+            try {
+                const response = await fetch(`${API_BASE}/api/predict/student`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(studentData)
+                });
+                const data = await response.json();
+                displayResult(resultElementId, data, response.ok);
+            } catch (error) {
+                displayResult(resultElementId, {error: error.message}, false);
+            }
+        }
+
+        async function testBatch() {
+            const batchData = {
+                students: [
+                    {student_id: "batch_001", current_gpa: 3.2, attendance_rate: 0.85, total_credits: 16},
+                    {student_id: "batch_002", current_gpa: 2.5, attendance_rate: 0.70, total_credits: 12},
+                    {student_id: "batch_003", current_gpa: 3.9, attendance_rate: 0.98, total_credits: 18}
+                ]
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/predict/batch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(batchData)
+                });
+                const data = await response.json();
+                displayResult('batchResult', data, response.ok);
+            } catch (error) {
+                displayResult('batchResult', {error: error.message}, false);
+            }
+        }
+
+        // Auto-test health on page load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 1000);
+        });
+    </script>
+</body>
+</html>
